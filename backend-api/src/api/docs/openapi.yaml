@@ -1,0 +1,28 @@
+openapi: "3.0.3"
+
+info:
+  title: Soppadop API
+  version: "1.0.0"
+  description: Soppadop App - Backend API Documentation
+  contact:
+    name: API Support
+    email: support@soppadop.com
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:5000
+    description: Development
+  - url: http://localhost:80
+    description: Production (Docker)
+
+security:
+  - BearerAuth: []
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Enter JWT token obtained from /api/auth/login

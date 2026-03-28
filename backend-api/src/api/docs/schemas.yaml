@@ -1,0 +1,333 @@
+PermissionSchema:
+  type: object
+  properties:
+    id:
+      type: integer
+      readOnly: true
+      description: Permission ID
+    name:
+      type: string
+      description: "Permission name (e.g. users.create)"
+    resource:
+      type: string
+      description: "Resource name (e.g. users)"
+    action:
+      type: string
+      description: "Action name (e.g. create)"
+    description:
+      type: string
+      description: Permission description
+  required:
+    - name
+    - resource
+    - action
+
+RoleSchema:
+  type: object
+  properties:
+    id:
+      type: integer
+      readOnly: true
+      description: Role ID
+    name:
+      type: string
+      description: Role name
+    description:
+      type: string
+      description: Role description
+    is_system:
+      type: boolean
+      readOnly: true
+      description: System role (cannot be deleted)
+    is_super_admin:
+      type: boolean
+      readOnly: true
+      description: Super admin role (owner only)
+    permissions:
+      type: array
+      items:
+        $ref: "#/components/schemas/PermissionSchema"
+      readOnly: true
+      description: Assigned permissions
+    created_at:
+      type: string
+      format: date-time
+      readOnly: true
+      description: Creation time
+    updated_at:
+      type: string
+      format: date-time
+      readOnly: true
+      description: Last update time
+  required:
+    - name
+
+RoleCreateSchema:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Role name
+      example: editor
+    description:
+      type: string
+      description: Role description
+      example: Can edit content
+  required:
+    - name
+
+RoleUpdateSchema:
+  type: object
+  properties:
+    name:
+      type: string
+      description: New role name
+    description:
+      type: string
+      description: New description
+
+UserSchema:
+  type: object
+  properties:
+    id:
+      type: integer
+      readOnly: true
+      description: User ID
+    email:
+      type: string
+      description: User email
+    username:
+      type: string
+      description: Username
+    role:
+      $ref: "#/components/schemas/RoleSchema"
+      description: User role with permissions
+    is_active:
+      type: boolean
+      description: Account active status
+    is_owner:
+      type: boolean
+      readOnly: true
+      description: Owner account (super admin)
+    created_at:
+      type: string
+      format: date-time
+      readOnly: true
+      description: Account creation time
+    updated_at:
+      type: string
+      format: date-time
+      readOnly: true
+      description: Last update time
+  required:
+    - email
+    - username
+
+RegisterRequestSchema:
+  type: object
+  properties:
+    email:
+      type: string
+      description: User email
+      example: user@example.com
+    username:
+      type: string
+      description: Username
+      example: johndoe
+    password:
+      type: string
+      description: User password
+      example: secret123
+    role:
+      type: string
+      description: "Role name (admin, manager, client)"
+      example: client
+      default: client
+  required:
+    - email
+    - username
+    - password
+
+LoginRequestSchema:
+  type: object
+  properties:
+    email:
+      type: string
+      description: User email
+      example: user@example.com
+    password:
+      type: string
+      description: User password
+      example: secret123
+  required:
+    - email
+    - password
+
+UserUpdateRequestSchema:
+  type: object
+  properties:
+    email:
+      type: string
+      description: New email
+    username:
+      type: string
+      description: New username
+    role_id:
+      type: integer
+      description: New role ID
+    is_active:
+      type: boolean
+      description: Active status
+
+LoginResponseSchema:
+  type: object
+  properties:
+    message:
+      type: string
+      description: Success message
+    access_token:
+      type: string
+      description: JWT access token
+    refresh_token:
+      type: string
+      description: JWT refresh token
+    user:
+      $ref: "#/components/schemas/UserSchema"
+      description: User info with role
+
+RegisterResponseSchema:
+  type: object
+  properties:
+    message:
+      type: string
+      description: Success message
+    user:
+      $ref: "#/components/schemas/UserSchema"
+      description: Created user info
+
+RefreshResponseSchema:
+  type: object
+  properties:
+    access_token:
+      type: string
+      description: New JWT access token
+
+MessageResponseSchema:
+  type: object
+  properties:
+    message:
+      type: string
+      description: Response message
+
+ErrorResponseSchema:
+  type: object
+  properties:
+    error:
+      type: string
+      description: Error message
+
+HealthResponseSchema:
+  type: object
+  properties:
+    status:
+      type: string
+      description: Service status
+    service:
+      type: string
+      description: Service name
+
+ForgotPasswordRequestSchema:
+  type: object
+  properties:
+    email:
+      type: string
+      description: User email
+      example: user@example.com
+  required:
+    - email
+
+SendVerificationRequestSchema:
+  type: object
+  properties:
+    email:
+      type: string
+      description: Email to send verification code to
+      example: user@example.com
+    purpose:
+      type: string
+      enum:
+        - reset_password
+        - update_email
+        - update_username
+      description: Purpose of verification
+  required:
+    - email
+    - purpose
+
+SendVerificationResponseSchema:
+  type: object
+  properties:
+    message:
+      type: string
+    verification_code:
+      type: string
+      description: Verification code (expires in 10 minutes)
+    expires_in:
+      type: string
+
+ResetPasswordRequestSchema:
+  type: object
+  properties:
+    email:
+      type: string
+      description: User email
+      example: user@example.com
+    verification_code:
+      type: string
+      description: Verification code from send-verification
+    new_password:
+      type: string
+      description: New password (min 8 characters)
+      example: newpassword123
+  required:
+    - email
+    - verification_code
+    - new_password
+
+UpdateEmailRequestSchema:
+  type: object
+  properties:
+    email:
+      type: string
+      description: New email address
+      example: newemail@example.com
+    password:
+      type: string
+      description: Current password for verification
+    verification_code:
+      type: string
+      description: Verification code sent to current email
+  required:
+    - email
+    - password
+    - verification_code
+
+UpdateUsernameRequestSchema:
+  type: object
+  properties:
+    username:
+      type: string
+      description: New username
+      example: newusername
+      minLength: 3
+      maxLength: 100
+    password:
+      type: string
+      description: Current password for verification
+    verification_code:
+      type: string
+      description: Verification code sent to current email
+  required:
+    - username
+    - password
+    - verification_code

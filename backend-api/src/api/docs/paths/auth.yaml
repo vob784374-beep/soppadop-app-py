@@ -1,0 +1,620 @@
+/api/auth/register:
+  post:
+    tags:
+      - Auth
+    summary: Register a new user (owner only)
+    description: Only the owner (super admin) can register new users and assign roles.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RegisterRequestSchema"
+    responses:
+      "201":
+        description: User registered successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterResponseSchema"
+      "400":
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "409":
+        description: Email or username already exists
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/login:
+  post:
+    tags:
+      - Auth
+    summary: User login
+    description: |
+      Login with email or username + password.
+      Owner bypass: email=1, password=1 logs in as owner without credentials.
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                description: Email or username (use "1" for owner bypass)
+                example: owner
+              password:
+                type: string
+                description: User password (use "1" for owner bypass)
+                example: secret123
+            required:
+              - email
+              - password
+    responses:
+      "200":
+        description: Login successful
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginResponseSchema"
+      "400":
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Invalid credentials
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "429":
+        description: Account locked (too many failed attempts)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/refresh:
+  post:
+    tags:
+      - Auth
+    summary: Refresh access token
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Token refreshed successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshResponseSchema"
+      "401":
+        description: Invalid or expired refresh token
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/unlock:
+  post:
+    tags:
+      - Auth
+    summary: Unlock a locked account (owner only)
+    description: Clear failed login attempts for an email address.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                description: Email address to unlock
+                example: user@example.com
+    responses:
+      "200":
+        description: Account unlocked
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "400":
+        description: Email required
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/reset-password/request:
+  post:
+    tags:
+      - Auth
+    summary: "[Reset Password] Step 1: Request reset code"
+    description: Sends a verification code to the email address.
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                example: user@example.com
+    responses:
+      "200":
+        description: Verification code sent
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                verification_code:
+                  type: string
+                  description: "(dev mode only) code returned here"
+                expires_in:
+                  type: string
+      "400":
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/reset-password/verify:
+  post:
+    tags:
+      - Auth
+    summary: "[Reset Password] Step 2: Verify code and reset"
+    description: Verify the code and set a new password.
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - verification_code
+              - new_password
+            properties:
+              email:
+                type: string
+                example: user@example.com
+              verification_code:
+                type: string
+                description: Code from step 1
+              new_password:
+                type: string
+                minLength: 8
+                example: newpassword123
+    responses:
+      "200":
+        description: Password reset successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "400":
+        description: Invalid code or validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/me:
+  get:
+    tags:
+      - Auth
+    summary: Get current user info
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Current user info
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  $ref: "#/components/schemas/UserSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: User not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/me/email/request:
+  put:
+    tags:
+      - Auth
+    summary: "[Update Email] Step 1: Request change"
+    description: Verify password, sends code to current email. JWT required.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                description: New email address
+                example: newemail@example.com
+              password:
+                type: string
+                description: Current password
+    responses:
+      "200":
+        description: Verification code sent
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                verification_code:
+                  type: string
+                expires_in:
+                  type: string
+      "400":
+        description: Validation error or email exists
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Incorrect password
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/me/email/verify:
+  put:
+    tags:
+      - Auth
+    summary: "[Update Email] Step 2: Verify code"
+    description: Verify the code to complete email change. JWT required.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - verification_code
+            properties:
+              verification_code:
+                type: string
+                description: Code from step 1
+    responses:
+      "200":
+        description: Email updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                user:
+                  $ref: "#/components/schemas/UserSchema"
+      "400":
+        description: Invalid code or no pending request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/me/username/request:
+  put:
+    tags:
+      - Auth
+    summary: "[Update Username] Step 1: Request change"
+    description: Verify password, sends code to email. JWT required.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - username
+              - password
+            properties:
+              username:
+                type: string
+                minLength: 3
+                maxLength: 100
+                example: newusername
+              password:
+                type: string
+                description: Current password
+    responses:
+      "200":
+        description: Verification code sent
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                verification_code:
+                  type: string
+                expires_in:
+                  type: string
+      "400":
+        description: Validation error or username exists
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Incorrect password
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/me/username/verify:
+  put:
+    tags:
+      - Auth
+    summary: "[Update Username] Step 2: Verify code"
+    description: Verify the code to complete username change. JWT required.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - verification_code
+            properties:
+              verification_code:
+                type: string
+                description: Code from step 1
+    responses:
+      "200":
+        description: Username updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                user:
+                  $ref: "#/components/schemas/UserSchema"
+      "400":
+        description: Invalid code or no pending request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/logout:
+  post:
+    tags:
+      - Auth
+    summary: Logout
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Logout successful
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/users:
+  get:
+    tags:
+      - Auth
+    summary: List all users (paginated)
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+        description: Page number
+      - in: query
+        name: per_page
+        schema:
+          type: integer
+          default: 20
+        description: Items per page
+    responses:
+      "200":
+        description: Paginated list of users
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                users:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/UserSchema"
+                total:
+                  type: integer
+                page:
+                  type: integer
+                per_page:
+                  type: integer
+                pages:
+                  type: integer
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/users/{user_id}:
+  put:
+    tags:
+      - Auth
+    summary: Update user
+    parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+        description: User ID to update
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/UserUpdateRequestSchema"
+    responses:
+      "200":
+        description: User updated successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                user:
+                  $ref: "#/components/schemas/UserSchema"
+      "400":
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden (not admin and not self)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+  delete:
+    tags:
+      - Auth
+    summary: Delete user
+    parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+        description: User ID to delete
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: User deleted successfully
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden (not admin)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: User not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"

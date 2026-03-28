@@ -1,0 +1,422 @@
+/api/roles:
+  get:
+    tags:
+      - Roles
+    summary: List all roles
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: List of roles
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                roles:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/RoleSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+  post:
+    tags:
+      - Roles
+    summary: Create role
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RoleCreateSchema"
+    responses:
+      "201":
+        description: Role created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                role:
+                  $ref: "#/components/schemas/RoleSchema"
+      "400":
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "409":
+        description: Role already exists
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/roles/{role_id}:
+  get:
+    tags:
+      - Roles
+    summary: Get role details
+    parameters:
+      - in: path
+        name: role_id
+        schema:
+          type: integer
+        required: true
+        description: Role ID
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Role details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  $ref: "#/components/schemas/RoleSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Role not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+  put:
+    tags:
+      - Roles
+    summary: Update role
+    parameters:
+      - in: path
+        name: role_id
+        schema:
+          type: integer
+        required: true
+        description: Role ID to update
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RoleUpdateSchema"
+    responses:
+      "200":
+        description: Role updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                role:
+                  $ref: "#/components/schemas/RoleSchema"
+      "400":
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Role not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+  delete:
+    tags:
+      - Roles
+    summary: Delete role
+    parameters:
+      - in: path
+        name: role_id
+        schema:
+          type: integer
+        required: true
+        description: Role ID to delete
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Role deleted
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "400":
+        description: Cannot delete system role
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Role not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/permissions:
+  get:
+    tags:
+      - Permissions
+    summary: List all permissions
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: List of permissions
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permissions:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PermissionSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/roles/{role_id}/permissions:
+  put:
+    tags:
+      - Permissions
+    summary: Set role permissions
+    parameters:
+      - in: path
+        name: role_id
+        schema:
+          type: integer
+        required: true
+        description: Role ID
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - permission_ids
+            properties:
+              permission_ids:
+                type: array
+                items:
+                  type: integer
+                description: List of permission IDs to assign
+    responses:
+      "200":
+        description: Permissions updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                role:
+                  $ref: "#/components/schemas/RoleSchema"
+      "400":
+        description: Validation error
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Role not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/roles/{role_id}/permissions/{permission_id}:
+  post:
+    tags:
+      - Permissions
+    summary: Add permission to role
+    parameters:
+      - in: path
+        name: role_id
+        schema:
+          type: integer
+        required: true
+        description: Role ID
+      - in: path
+        name: permission_id
+        schema:
+          type: integer
+        required: true
+        description: Permission ID
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Permission added
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                role:
+                  $ref: "#/components/schemas/RoleSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Role or permission not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+  delete:
+    tags:
+      - Permissions
+    summary: Remove permission from role
+    parameters:
+      - in: path
+        name: role_id
+        schema:
+          type: integer
+        required: true
+        description: Role ID
+      - in: path
+        name: permission_id
+        schema:
+          type: integer
+        required: true
+        description: Permission ID
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Permission removed
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                role:
+                  $ref: "#/components/schemas/RoleSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Role or permission not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"

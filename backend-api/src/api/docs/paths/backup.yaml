@@ -1,0 +1,253 @@
+/api/backup/create:
+  post:
+    tags:
+      - Backup
+    summary: Create database backup (owner only)
+    description: Creates a MySQL dump file and stores it on the server.
+    security:
+      - BearerAuth: []
+    responses:
+      "201":
+        description: Backup created
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                backup:
+                  type: object
+                  properties:
+                    filename:
+                      type: string
+                    size:
+                      type: integer
+                    created_at:
+                      type: string
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "500":
+        description: Backup failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/backup/list:
+  get:
+    tags:
+      - Backup
+    summary: List all backups (owner only)
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: List of backups
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backups:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      filename:
+                        type: string
+                      size:
+                        type: integer
+                      created_at:
+                        type: string
+                total:
+                  type: integer
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/backup/restore:
+  post:
+    tags:
+      - Backup
+    summary: Restore database from backup (owner only)
+    description: Restores the database from a previously created backup file.
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - filename
+            properties:
+              filename:
+                type: string
+                description: Backup filename to restore
+                example: backup_soppadop_db_20260328_210000.sql
+    responses:
+      "200":
+        description: Database restored
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "400":
+        description: Invalid filename
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Backup file not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "500":
+        description: Restore failed
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/backup/delete:
+  delete:
+    tags:
+      - Backup
+    summary: Delete a backup file (owner only)
+    security:
+      - BearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - filename
+            properties:
+              filename:
+                type: string
+    responses:
+      "200":
+        description: Backup deleted
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Backup file not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/backup/download/{filename}:
+  get:
+    tags:
+      - Backup
+    summary: Download a backup file (owner only)
+    security:
+      - BearerAuth: []
+    parameters:
+      - in: path
+        name: filename
+        schema:
+          type: string
+        required: true
+        description: Backup filename
+    responses:
+      "200":
+        description: SQL file download
+        content:
+          application/sql:
+            schema:
+              type: string
+              format: binary
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Backup file not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/backup/logs:
+  get:
+    tags:
+      - Backup
+    summary: Backup history logs (owner only)
+    description: List all backup, restore, delete actions with user tracking.
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Backup history
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                logs:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      filename:
+                        type: string
+                      version:
+                        type: integer
+                      action:
+                        type: string
+                        enum: [create, restore, delete, cleanup]
+                      size:
+                        type: integer
+                      status:
+                        type: string
+                        enum: [success, failed]
+                      error_message:
+                        type: string
+                        nullable: true
+                      created_by:
+                        type: integer
+                      created_by_user:
+                        type: string
+                      created_at:
+                        type: string
+                total:
+                  type: integer
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
