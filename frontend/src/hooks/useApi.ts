@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { AxiosError } from 'axios'
 
 interface UseApiState<T> {
@@ -9,19 +9,30 @@ interface UseApiState<T> {
 
 export function useApi<T>(fetcher: () => Promise<T>, deps: any[] = []) {
   const [state, setState] = useState<UseApiState<T>>({ data: null, loading: true, error: null })
+  const fetcherRef = useRef(fetcher)
+  const [refetchKey, setRefetchKey] = useState(0)
 
-  const refetch = useCallback(async () => {
+  useEffect(() => {
+    fetcherRef.current = fetcher
+  })
+
+  const refetch = useCallback(() => {
+    setRefetchKey(k => k + 1)
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
     setState(prev => ({ ...prev, loading: true, error: null }))
-    try {
-      const data = await fetcher()
-      setState({ data, loading: false, error: null })
-    } catch (err) {
-      const e = err as AxiosError<{ error: string }>
-      setState({ data: null, loading: false, error: e.response?.data?.error || 'Request failed' })
-    }
-  }, deps)
-
-  useEffect(() => { refetch() }, [refetch])
+    fetcherRef.current().then(data => {
+      if (!cancelled) setState({ data, loading: false, error: null })
+    }).catch(err => {
+      if (!cancelled) {
+        const e = err as AxiosError<{ error: string }>
+        setState({ data: null, loading: false, error: e.response?.data?.error || 'Request failed' })
+      }
+    })
+    return () => { cancelled = true }
+  }, [refetchKey, ...deps])
 
   return { ...state, refetch }
 }

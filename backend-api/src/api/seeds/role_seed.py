@@ -91,6 +91,36 @@ DEFAULT_PERMISSIONS = [
         "action": "owner",
         "description": "Owner-only operations",
     },
+    {
+        "name": "resources.view",
+        "resource": "resources",
+        "action": "view",
+        "description": "View resources",
+    },
+    {
+        "name": "resources.upload",
+        "resource": "resources",
+        "action": "upload",
+        "description": "Upload resources",
+    },
+    {
+        "name": "resources.delete",
+        "resource": "resources",
+        "action": "delete",
+        "description": "Delete resources",
+    },
+    {
+        "name": "resources.download",
+        "resource": "resources",
+        "action": "download",
+        "description": "Download resources",
+    },
+    {
+        "name": "resources.stats",
+        "resource": "resources",
+        "action": "stats",
+        "description": "View resource statistics",
+    },
 ]
 
 DEFAULT_ROLES = [
@@ -120,6 +150,11 @@ DEFAULT_ROLES = [
             "permissions.assign",
             "system.health",
             "system.admin",
+            "resources.view",
+            "resources.upload",
+            "resources.delete",
+            "resources.download",
+            "resources.stats",
         ],
     },
     {
@@ -135,6 +170,10 @@ DEFAULT_ROLES = [
             "roles.view",
             "permissions.view",
             "system.health",
+            "resources.view",
+            "resources.upload",
+            "resources.download",
+            "resources.stats",
         ],
     },
     {
@@ -142,7 +181,13 @@ DEFAULT_ROLES = [
         "description": "Client - standard user access",
         "is_system": True,
         "is_super_admin": False,
-        "permissions": ["users.view", "system.health"],
+        "permissions": [
+            "users.view",
+            "system.health",
+            "resources.view",
+            "resources.upload",
+            "resources.download",
+        ],
     },
 ]
 

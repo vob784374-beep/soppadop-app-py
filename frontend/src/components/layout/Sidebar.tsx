@@ -54,6 +54,9 @@ export default function Sidebar() {
           <NavLink to="/roles" style={({ isActive }) => linkStyle(isActive)}>
             {t('sidebar.roles')}
           </NavLink>
+          <NavLink to="/resources" style={({ isActive }) => linkStyle(isActive)}>
+            {t('sidebar.resources')}
+          </NavLink>
         </div>
       )}
 

@@ -34,7 +34,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - backend_logs:/app/logs
+      - ../backend-api/logs:/app/logs
       - ../backend-api/backups:/app/backups
 
   frontend:
@@ -50,4 +50,3 @@ services:
 
 volumes:
   mysql_data:
-  backend_logs:

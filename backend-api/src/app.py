@@ -133,12 +133,19 @@ def create_app(config_name=None):
     register_health_routes(app)
 
     with app.app_context():
-        from src.api.controllers import auth_bp, verify_bp, role_bp, backup_bp
+        from src.api.controllers import (
+            auth_bp,
+            verify_bp,
+            role_bp,
+            backup_bp,
+            resource_bp,
+        )
 
         app.register_blueprint(auth_bp)
         app.register_blueprint(verify_bp)
         app.register_blueprint(role_bp)
         app.register_blueprint(backup_bp)
+        app.register_blueprint(resource_bp)
 
         _init_database(app)
 

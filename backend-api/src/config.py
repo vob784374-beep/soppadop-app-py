@@ -40,6 +40,12 @@ class Config:
     )
     BACKUP_AUTO_INTERVAL_HOURS = int(os.environ.get("BACKUP_AUTO_INTERVAL_HOURS", 24))
 
+    # Cloudinary
+    CLOUDINARY_CLOUD_NAME = os.environ.get("CLOUDINARY_CLOUD_NAME", "")
+    CLOUDINARY_API_KEY = os.environ.get("CLOUDINARY_API_KEY", "")
+    CLOUDINARY_API_SECRET = os.environ.get("CLOUDINARY_API_SECRET", "")
+    MAX_UPLOAD_SIZE_MB = int(os.environ.get("MAX_UPLOAD_SIZE_MB", 100))
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

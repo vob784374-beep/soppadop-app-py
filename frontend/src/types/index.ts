@@ -74,3 +74,67 @@ export interface BackupFile {
   created_at: string;
   created_by: string;
 }
+
+export interface Resource {
+  id: number;
+  display_name: string | null;
+  filename: string;
+  original_name: string;
+  file_type: 'image' | 'video' | 'document' | 'archive' | 'other';
+  mime_type: string;
+  size: number;
+  cloudinary_url: string;
+  cloudinary_public_id: string;
+  resource_type: string;
+  collection: string;
+  folder: string;
+  format: string | null;
+  width: number | null;
+  height: number | null;
+  version: number | null;
+  tags: string | null;
+  description: string | null;
+  download_count: number;
+  uploaded_by: number;
+  uploaded_by_user: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginatedResources {
+  resources: Resource[];
+  total: number;
+  page: number;
+  per_page: number;
+  pages: number;
+}
+
+export interface ResourceStats {
+  total_files: number;
+  total_size: number;
+  by_type: Record<string, number>;
+  by_collection: Record<string, number>;
+}
+
+export interface ResourceCollection {
+  name: string;
+  count: number;
+}
+
+export interface ResourceFolder {
+  name: string;
+  file_count: number;
+  total_size: number;
+}
+
+export interface CloudinaryAccount {
+  plan: string;
+  cloud_name: string;
+  credits: { used: number; limit: number; used_percent: number };
+  storage: { used_bytes: number; limit_bytes: number; used_percent: number };
+  bandwidth: { used_bytes: number; limit_bytes: number; used_percent: number };
+  transformations: { used: number; limit: number; used_percent: number };
+  objects: { used: number; limit: number };
+  requests: number;
+  resources: number;
+}

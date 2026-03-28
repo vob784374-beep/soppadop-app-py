@@ -87,9 +87,7 @@ def setup_logging(app):
     global _daily_logger
 
     log_level = getattr(logging, app.config.get("LOG_LEVEL", "INFO").upper())
-    base_dir = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "logs"
-    )
+    base_dir = os.environ.get("LOG_DIR", "/app/logs")
     _ensure_dir(base_dir)
 
     formatter = logging.Formatter(

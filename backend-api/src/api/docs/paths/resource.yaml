@@ -1,0 +1,363 @@
+/api/resources:
+  post:
+    tags:
+      - Resources
+    summary: Upload a resource file
+    description: Upload a file to Cloudinary with collection and folder organization
+    requestBody:
+      required: true
+      content:
+        multipart/form-data:
+          schema:
+            type: object
+            required:
+              - file
+            properties:
+              file:
+                type: string
+                format: binary
+                description: File to upload
+              collection:
+                type: string
+                default: default
+                description: Collection name for grouping
+              folder:
+                type: string
+                default: general
+                description: Folder name within collection
+              display_name:
+                type: string
+                description: Custom display name
+              description:
+                type: string
+                description: File description
+              tags:
+                type: string
+                description: Comma-separated tags
+    responses:
+      "201":
+        description: Resource uploaded successfully
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                resource:
+                  $ref: "#/components/schemas/ResourceSchema"
+      "400":
+        description: Bad request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+  get:
+    tags:
+      - Resources
+    summary: List all resources
+    description: Paginated list with filters by type, collection, folder, search
+    parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: per_page
+        in: query
+        schema:
+          type: integer
+          default: 20
+      - name: file_type
+        in: query
+        schema:
+          type: string
+          enum: [image, video, document, archive, other]
+      - name: collection
+        in: query
+        schema:
+          type: string
+        description: Filter by collection name
+      - name: folder
+        in: query
+        schema:
+          type: string
+        description: Filter by folder name
+      - name: search
+        in: query
+        schema:
+          type: string
+        description: Search by name or description
+    responses:
+      "200":
+        description: Paginated resources
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resources:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ResourceSchema"
+                total:
+                  type: integer
+                page:
+                  type: integer
+                per_page:
+                  type: integer
+                pages:
+                  type: integer
+
+/api/resources/{resource_id}:
+  get:
+    tags:
+      - Resources
+    summary: Get resource details
+    parameters:
+      - name: resource_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Resource details
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resource:
+                  $ref: "#/components/schemas/ResourceSchema"
+      "404":
+        description: Not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+  patch:
+    tags:
+      - Resources
+    summary: Update resource metadata
+    description: Update display name, description, tags, collection, or folder
+    parameters:
+      - name: resource_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              display_name:
+                type: string
+              description:
+                type: string
+              tags:
+                type: string
+              collection:
+                type: string
+              folder:
+                type: string
+    responses:
+      "200":
+        description: Resource updated
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                resource:
+                  $ref: "#/components/schemas/ResourceSchema"
+      "404":
+        description: Not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+  delete:
+    tags:
+      - Resources
+    summary: Delete a resource
+    description: Delete from Cloudinary and database
+    parameters:
+      - name: resource_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Deleted
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "404":
+        description: Not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/resources/{resource_id}/download:
+  get:
+    tags:
+      - Resources
+    summary: Get download URL
+    description: Returns Cloudinary direct URL and increments counter
+    parameters:
+      - name: resource_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    responses:
+      "200":
+        description: Download URL
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                download_url:
+                  type: string
+      "404":
+        description: Not found
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/resources/collections:
+  get:
+    tags:
+      - Resources
+    summary: List collections
+    description: List all resource collections with file counts
+    responses:
+      "200":
+        description: Collections list
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collections:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ResourceCollectionSchema"
+
+/api/resources/folders:
+  get:
+    tags:
+      - Resources
+    summary: List folders
+    description: List folders with file counts, optionally filtered by collection
+    parameters:
+      - name: collection
+        in: query
+        schema:
+          type: string
+        description: Filter by collection
+    responses:
+      "200":
+        description: Folders list
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                folders:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/ResourceFolderSchema"
+
+/api/resources/cloudinary-folders:
+  get:
+    tags:
+      - Resources
+    summary: List Cloudinary subfolders
+    description: List subfolders in Cloudinary at given path
+    parameters:
+      - name: path
+        in: query
+        schema:
+          type: string
+          default: soppadop
+    responses:
+      "200":
+        description: Cloudinary folders
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                folders:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      path:
+                        type: string
+  post:
+    tags:
+      - Resources
+    summary: Create Cloudinary folder
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - path
+            properties:
+              path:
+                type: string
+                description: Full folder path
+    responses:
+      "200":
+        description: Folder created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "400":
+        description: Bad request
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/resources/stats:
+  get:
+    tags:
+      - Resources
+    summary: Resource statistics
+    description: Total files, size, breakdown by type and collection
+    responses:
+      "200":
+        description: Statistics
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                stats:
+                  $ref: "#/components/schemas/ResourceStatsSchema"

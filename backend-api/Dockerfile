@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+RUN ln -sf /usr/share/zoneinfo/Asia/Ho_Chi_Minh /etc/localtime && echo "Asia/Ho_Chi_Minh" > /etc/timezone
+ENV TZ=Asia/Ho_Chi_Minh
+
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \

@@ -10,6 +10,7 @@ import RegisterPage from '@/pages/RegisterPage'
 import UsersPage from '@/pages/UsersPage'
 import RolesPage from '@/pages/RolesPage'
 import BackupPage from '@/pages/BackupPage'
+import ResourcesPage from '@/pages/ResourcesPage'
 import ApiDocsPage from '@/pages/ApiDocsPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
@@ -28,6 +29,7 @@ export const protectedRoutes: RouteObject[] = [
       { path: '/register', element: <OwnerRoute><RegisterPage /></OwnerRoute> },
       { path: '/users', element: <RoleRoute roles={['admin', 'manager']}><UsersPage /></RoleRoute> },
       { path: '/roles', element: <RoleRoute roles={['admin', 'manager']}><RolesPage /></RoleRoute> },
+      { path: '/resources', element: <PrivateRoute><ResourcesPage /></PrivateRoute> },
       { path: '/backup', element: <OwnerRoute><BackupPage /></OwnerRoute> },
       { path: '/api-docs', element: <OwnerRoute><ApiDocsPage /></OwnerRoute> },
     ],

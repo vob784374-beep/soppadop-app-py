@@ -331,3 +331,125 @@ UpdateUsernameRequestSchema:
     - username
     - password
     - verification_code
+
+ResourceSchema:
+  type: object
+  properties:
+    id:
+      type: integer
+      readOnly: true
+      description: Resource ID
+    display_name:
+      type: string
+      description: Custom display name
+    filename:
+      type: string
+      description: Stored filename
+    original_name:
+      type: string
+      description: Original uploaded filename
+    file_type:
+      type: string
+      description: "File type category (image, video, document, archive, other)"
+    mime_type:
+      type: string
+      description: MIME type
+    size:
+      type: integer
+      format: int64
+      description: File size in bytes
+    cloudinary_url:
+      type: string
+      description: Cloudinary secure URL
+    cloudinary_public_id:
+      type: string
+      description: Cloudinary public identifier
+    resource_type:
+      type: string
+      description: "Cloudinary resource type (image, video, raw)"
+    collection:
+      type: string
+      description: Collection name
+    folder:
+      type: string
+      description: Folder name
+    format:
+      type: string
+      description: File format extension
+    width:
+      type: integer
+      description: Image/video width (if applicable)
+    height:
+      type: integer
+      description: Image/video height (if applicable)
+    version:
+      type: integer
+      description: Cloudinary version number
+    tags:
+      type: string
+      description: Comma-separated tags
+    description:
+      type: string
+      description: File description
+    download_count:
+      type: integer
+      description: Number of times downloaded
+    uploaded_by:
+      type: integer
+      description: Uploader user ID
+    uploaded_by_user:
+      type: string
+      description: Uploader username
+    created_at:
+      type: string
+      format: date-time
+      readOnly: true
+    updated_at:
+      type: string
+      format: date-time
+      readOnly: true
+  required:
+    - original_name
+    - file_type
+    - cloudinary_url
+
+ResourceCollectionSchema:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Collection name
+    count:
+      type: integer
+      description: Number of files in collection
+
+ResourceFolderSchema:
+  type: object
+  properties:
+    name:
+      type: string
+      description: Folder name
+    file_count:
+      type: integer
+      description: Number of files in folder
+    total_size:
+      type: integer
+      format: int64
+      description: Total size of files in folder
+
+ResourceStatsSchema:
+  type: object
+  properties:
+    total_files:
+      type: integer
+    total_size:
+      type: integer
+      format: int64
+    by_type:
+      type: object
+      additionalProperties:
+        type: integer
+    by_collection:
+      type: object
+      additionalProperties:
+        type: integer

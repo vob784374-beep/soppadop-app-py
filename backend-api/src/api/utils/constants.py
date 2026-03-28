@@ -63,7 +63,15 @@ class Msg:
     class General:
         INTERNAL_ERROR = "Internal server error"
         INVALID_TOKEN = "Invalid token"
-        TOKEN_EXPIRED = "Token has expired"
+        TOKEN_EXPIRED = "Token has been revoked"
         TOKEN_REVOKED = "Token has been revoked"
         AUTH_REQUIRED = "Authorization required"
         FRESH_TOKEN_REQUIRED = "Fresh token required"
+
+    class Resource:
+        NOT_FOUND = "Resource not found"
+        UPLOAD_SUCCESS = "Resource uploaded successfully"
+        DELETE_SUCCESS = "Resource deleted successfully"
+        FILE_TYPE_NOT_ALLOWED = "File type not allowed"
+        FILE_TOO_LARGE = "File size exceeds the maximum allowed"
+        NO_FILE = "No file provided"
