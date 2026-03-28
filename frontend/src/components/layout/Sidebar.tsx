@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 
 const linkStyle = (isActive: boolean): React.CSSProperties => ({
@@ -14,6 +15,7 @@ const linkStyle = (isActive: boolean): React.CSSProperties => ({
 
 export default function Sidebar() {
   const { user } = useAuth()
+  const { t } = useTranslation()
   const isAdmin = ['admin', 'manager'].includes(user?.role?.name || '')
   const isOwner = user?.is_owner
 
@@ -31,26 +33,26 @@ export default function Sidebar() {
     }}>
       <div style={{ marginBottom: '1.5rem' }}>
         <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600, padding: '0 0.75rem', marginBottom: '0.5rem' }}>
-          General
+          {t('sidebar.general')}
         </p>
         <NavLink to="/dashboard" style={({ isActive }) => linkStyle(isActive)}>
-          Dashboard
+          {t('sidebar.dashboard')}
         </NavLink>
         <NavLink to="/profile" style={({ isActive }) => linkStyle(isActive)}>
-          Profile
+          {t('sidebar.profile')}
         </NavLink>
       </div>
 
       {(isAdmin || isOwner) && (
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600, padding: '0 0.75rem', marginBottom: '0.5rem' }}>
-            Management
+            {t('sidebar.management')}
           </p>
           <NavLink to="/users" style={({ isActive }) => linkStyle(isActive)}>
-            Users
+            {t('sidebar.users')}
           </NavLink>
           <NavLink to="/roles" style={({ isActive }) => linkStyle(isActive)}>
-            Roles & Permissions
+            {t('sidebar.roles')}
           </NavLink>
         </div>
       )}
@@ -58,16 +60,16 @@ export default function Sidebar() {
       {isOwner && (
         <div style={{ marginBottom: '1.5rem' }}>
           <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600, padding: '0 0.75rem', marginBottom: '0.5rem' }}>
-            System
+            {t('sidebar.system')}
           </p>
           <NavLink to="/register" style={({ isActive }) => linkStyle(isActive)}>
-            Register User
+            {t('sidebar.registerUser')}
           </NavLink>
           <NavLink to="/backup" style={({ isActive }) => linkStyle(isActive)}>
-            Backup
+            {t('sidebar.backup')}
           </NavLink>
           <NavLink to="/api-docs" style={({ isActive }) => linkStyle(isActive)}>
-            API Docs
+            {t('sidebar.apiDocs')}
           </NavLink>
         </div>
       )}

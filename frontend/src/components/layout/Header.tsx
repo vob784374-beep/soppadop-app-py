@@ -1,8 +1,15 @@
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function Header() {
   const { user, logout } = useAuth()
+  const { t, i18n } = useTranslation()
+
+  const toggleLang = () => {
+    const next = i18n.language === 'en' ? 'vi' : 'en'
+    i18n.changeLanguage(next)
+  }
 
   return (
     <header style={{
@@ -24,15 +31,26 @@ export default function Header() {
       </Link>
 
       <nav style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button onClick={toggleLang} title="Switch language" style={{
+          padding: '0.25rem 0.5rem',
+          background: '#f3f4f6',
+          border: '1px solid #d1d5db',
+          borderRadius: '4px',
+          fontSize: '0.8rem',
+          cursor: 'pointer',
+          fontWeight: 600,
+        }}>
+          {i18n.language === 'en' ? 'VI' : 'EN'}
+        </button>
         <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
           {user?.username} <span style={{ color: '#3b82f6' }}>({user?.role?.name})</span>
         </span>
-        <Link to="/profile" style={{ fontSize: '0.875rem', color: '#3b82f6' }}>Profile</Link>
+        <Link to="/profile" style={{ fontSize: '0.875rem', color: '#3b82f6' }}>{t('header.profile')}</Link>
         <button onClick={logout} style={{
           padding: '0.375rem 0.75rem', background: '#ef4444', color: '#fff',
           borderRadius: '4px', fontSize: '0.8rem',
         }}>
-          Logout
+          {t('header.logout')}
         </button>
       </nav>
     </header>

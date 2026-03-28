@@ -1,9 +1,12 @@
+import { useTranslation } from 'react-i18next'
 import { Card } from '@/components/ui'
 
 export default function ApiDocsPage() {
+  const { t } = useTranslation()
+
   return (
     <div>
-      <h1>API Documentation</h1>
+      <h1>{t('apiDocs.title')}</h1>
       <Card style={{ padding: 0, overflow: 'hidden' }}>
         <iframe
           src="/api/docs"

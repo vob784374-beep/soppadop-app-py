@@ -1,5 +1,6 @@
 import { useState, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { authApi } from '@/api'
 
 const styles = {
@@ -13,6 +14,7 @@ const styles = {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation()
   const [step, setStep] = useState(1)
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
@@ -50,18 +52,18 @@ export default function ResetPasswordPage() {
 
   return (
     <div style={styles.container}>
-      <h1>Reset Password</h1>
+      <h1>{t('resetPassword.title')}</h1>
       {error && <p style={styles.error}>{error}</p>}
       {message && step < 3 && <p style={styles.success}>{message}</p>}
 
       {step === 1 && (
         <form onSubmit={handleRequest}>
           <div>
-            <label style={styles.label}>Email</label>
+            <label style={styles.label}>{t('resetPassword.email')}</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required style={styles.input} />
           </div>
           <button type="submit" disabled={loading} style={styles.btn}>
-            {loading ? 'Sending...' : 'Send Code'}
+            {loading ? t('resetPassword.sending') : t('resetPassword.sendCode')}
           </button>
         </form>
       )}
@@ -69,15 +71,15 @@ export default function ResetPasswordPage() {
       {step === 2 && (
         <form onSubmit={handleVerify}>
           <div>
-            <label style={styles.label}>Verification Code</label>
-            <input type="text" value={code} onChange={e => setCode(e.target.value)} required style={styles.input} placeholder="Enter code from email" />
+            <label style={styles.label}>{t('resetPassword.verificationCode')}</label>
+            <input type="text" value={code} onChange={e => setCode(e.target.value)} required style={styles.input} placeholder={t('resetPassword.codePlaceholder')} />
           </div>
           <div>
-            <label style={styles.label}>New Password</label>
+            <label style={styles.label}>{t('resetPassword.newPassword')}</label>
             <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} required minLength={8} style={styles.input} />
           </div>
           <button type="submit" disabled={loading} style={styles.btn}>
-            {loading ? 'Resetting...' : 'Reset Password'}
+            {loading ? t('resetPassword.resetting') : t('resetPassword.resetPassword')}
           </button>
         </form>
       )}
@@ -85,12 +87,12 @@ export default function ResetPasswordPage() {
       {step === 3 && (
         <div style={{ textAlign: 'center' }}>
           <p style={styles.success}>{message}</p>
-          <Link to="/login" style={{ color: '#3b82f6' }}>Back to Login</Link>
+          <Link to="/login" style={{ color: '#3b82f6' }}>{t('resetPassword.backToLogin')}</Link>
         </div>
       )}
 
       <p style={styles.link}>
-        <Link to="/login">Back to Login</Link>
+        <Link to="/login">{t('resetPassword.backToLogin')}</Link>
       </p>
     </div>
   )

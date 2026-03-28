@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { roleService } from '@/services'
 import { Button, Card, Badge, Alert } from '@/components/ui'
 import { useApi, useMutation } from '@/hooks'
@@ -6,6 +7,7 @@ import { useToast } from '@/components/ui'
 import type { Role, Permission } from '@/types'
 
 export default function RolesPage() {
+  const { t } = useTranslation()
   const { data: roles, loading, error, refetch: refetchRoles } = useApi(() => roleService.list())
   const { data: permissions } = useApi(() => roleService.getPermissions())
   const [selected, setSelected] = useState<Role | null>(null)
@@ -21,32 +23,32 @@ export default function RolesPage() {
   const handleCreate = async () => {
     if (!newName.trim()) return
     const res = await createRole({ name: newName, description: newDesc })
-    if (res) { setNewName(''); setNewDesc(''); toast.show('Role created', 'success'); refetchRoles() }
+    if (res) { setNewName(''); setNewDesc(''); toast.show(t('roles.roleCreated'), 'success'); refetchRoles() }
   }
 
   const handleDelete = async (role: Role) => {
-    if (role.is_system) return toast.show('Cannot delete system role', 'warning')
-    if (!confirm(`Delete "${role.name}"?`)) return
+    if (role.is_system) return toast.show(t('roles.cannotDeleteSystem'), 'warning')
+    if (!confirm(t('roles.confirmDelete', { name: role.name }))) return
     const res = await deleteRole(role.id)
-    if (res) { setSelected(null); toast.show('Role deleted', 'success'); refetchRoles() }
+    if (res) { setSelected(null); toast.show(t('roles.roleDeleted'), 'success'); refetchRoles() }
   }
 
   const handleTogglePerm = async (role: Role, perm: Permission) => {
     const has = role.permissions?.some(p => p.id === perm.id) || false
     const res = await togglePerm({ roleId: role.id, permId: perm.id, has })
-    if (res) { toast.show('Permissions updated', 'success'); refetchRoles() }
+    if (res) { toast.show(t('roles.permissionsUpdated'), 'success'); refetchRoles() }
   }
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <p>{t('common.loading')}</p>
 
   return (
     <div>
-      <h1>Roles & Permissions</h1>
+      <h1>{t('roles.title')}</h1>
       {error && <Alert type="error" message={error} />}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         <div>
-          <Card title={`Roles (${roles?.length || 0})`}>
+          <Card title={t('roles.rolesCount', { count: roles?.length || 0 })}>
             {(roles || []).map(r => (
               <div key={r.id} onClick={() => setSelected(r)} style={{
                 padding: '0.75rem', borderRadius: '4px', cursor: 'pointer',
@@ -56,8 +58,8 @@ export default function RolesPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <strong>{r.name}</strong>
                   <div style={{ display: 'flex', gap: '0.25rem' }}>
-                    {r.is_system && <Badge color="gray">system</Badge>}
-                    <Badge color="purple">{r.permissions?.length || 0} perms</Badge>
+                    {r.is_system && <Badge color="gray">{t('roles.system')}</Badge>}
+                    <Badge color="purple">{r.permissions?.length || 0} {t('roles.perms')}</Badge>
                   </div>
                 </div>
                 <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>{r.description}</p>
@@ -65,24 +67,24 @@ export default function RolesPage() {
             ))}
 
             <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-              <h4>Create Role</h4>
+              <h4>{t('roles.createRole')}</h4>
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                <input placeholder="Name" value={newName} onChange={e => setNewName(e.target.value)}
+                <input placeholder={t('roles.name')} value={newName} onChange={e => setNewName(e.target.value)}
                   style={{ flex: 1, padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '4px' }} />
-                <input placeholder="Description" value={newDesc} onChange={e => setNewDesc(e.target.value)}
+                <input placeholder={t('roles.description')} value={newDesc} onChange={e => setNewDesc(e.target.value)}
                   style={{ flex: 1, padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '4px' }} />
-                <Button onClick={handleCreate}>Create</Button>
+                <Button onClick={handleCreate}>{t('roles.create')}</Button>
               </div>
             </div>
           </Card>
         </div>
 
-        <Card title={selected ? `${selected.name} Permissions` : 'Select a role'}>
+        <Card title={selected ? t('roles.permissions', { name: selected.name }) : t('roles.selectRole')}>
           {selected && (
             <>
               {!selected.is_system && (
                 <Button variant="danger" size="sm" onClick={() => handleDelete(selected)} style={{ marginBottom: '1rem' }}>
-                  Delete Role
+                  {t('roles.deleteRole')}
                 </Button>
               )}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
@@ -100,7 +102,7 @@ export default function RolesPage() {
               </div>
             </>
           )}
-          {!selected && <p style={{ color: '#6b7280' }}>Click a role to manage its permissions</p>}
+          {!selected && <p style={{ color: '#6b7280' }}>{t('roles.clickToManage')}</p>}
         </Card>
       </div>
     </div>
