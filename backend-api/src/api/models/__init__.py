@@ -6,6 +6,14 @@ from src.api.models.role import Role, Permission, role_permissions  # noqa: E402
 from src.api.models.user import User  # noqa: E402
 from src.api.models.backup_log import BackupLog  # noqa: E402
 from src.api.models.resource import Resource  # noqa: E402
+from src.api.models.cv import (
+    CV,
+    CVEducation,
+    CVExperience,
+    CVSkill,
+    CVProject,
+    CVCertification,
+)  # noqa: E402
 
 __all__ = [
     "db",
@@ -15,4 +23,10 @@ __all__ = [
     "role_permissions",
     "BackupLog",
     "Resource",
+    "CV",
+    "CVEducation",
+    "CVExperience",
+    "CVSkill",
+    "CVProject",
+    "CVCertification",
 ]

@@ -138,3 +138,101 @@ export interface CloudinaryAccount {
   requests: number;
   resources: number;
 }
+
+export interface CVEducation {
+  id: number;
+  cv_id: number;
+  school: string;
+  degree: string | null;
+  field_of_study: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  description: string | null;
+  order: number;
+}
+
+export interface CVExperience {
+  id: number;
+  cv_id: number;
+  company: string;
+  position: string;
+  start_date: string | null;
+  end_date: string | null;
+  is_current: boolean;
+  description: string | null;
+  order: number;
+}
+
+export interface CVSkill {
+  id: number;
+  cv_id: number;
+  name: string;
+  level: 'beginner' | 'intermediate' | 'advanced' | 'expert' | null;
+  category: string | null;
+  order: number;
+}
+
+export interface CVProject {
+  id: number;
+  cv_id: number;
+  name: string;
+  description: string | null;
+  technologies: string | null;
+  url: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  order: number;
+}
+
+export interface CVCertification {
+  id: number;
+  cv_id: number;
+  name: string;
+  issuer: string | null;
+  date: string | null;
+  url: string | null;
+  order: number;
+}
+
+export interface CV {
+  id: number;
+  title: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+  website: string | null;
+  linkedin: string | null;
+  github: string | null;
+  summary: string | null;
+  avatar_url: string | null;
+  is_default: boolean;
+  status: 'draft' | 'published' | 'archived';
+  user_id: number;
+  educations: CVEducation[];
+  experiences: CVExperience[];
+  skills: CVSkill[];
+  projects: CVProject[];
+  certifications: CVCertification[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CVSummary {
+  id: number;
+  title: string;
+  full_name: string;
+  email: string | null;
+  is_default: boolean;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PaginatedCVs {
+  cvs: CVSummary[];
+  total: number;
+  page: number;
+  per_page: number;
+  pages: number;
+}

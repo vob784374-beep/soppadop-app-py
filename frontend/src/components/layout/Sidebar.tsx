@@ -41,6 +41,9 @@ export default function Sidebar() {
         <NavLink to="/profile" style={({ isActive }) => linkStyle(isActive)}>
           {t('sidebar.profile')}
         </NavLink>
+        <NavLink to="/cv" style={({ isActive }) => linkStyle(isActive)}>
+          {t('sidebar.cv')}
+        </NavLink>
       </div>
 
       {(isAdmin || isOwner) && (

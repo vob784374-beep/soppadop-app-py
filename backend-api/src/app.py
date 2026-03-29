@@ -139,6 +139,7 @@ def create_app(config_name=None):
             role_bp,
             backup_bp,
             resource_bp,
+            cv_bp,
         )
 
         app.register_blueprint(auth_bp)
@@ -146,6 +147,7 @@ def create_app(config_name=None):
         app.register_blueprint(role_bp)
         app.register_blueprint(backup_bp)
         app.register_blueprint(resource_bp)
+        app.register_blueprint(cv_bp)
 
         _init_database(app)
 

@@ -11,6 +11,7 @@ import UsersPage from '@/pages/UsersPage'
 import RolesPage from '@/pages/RolesPage'
 import BackupPage from '@/pages/BackupPage'
 import ResourcesPage from '@/pages/ResourcesPage'
+import CVPage from '@/pages/CVPage'
 import ApiDocsPage from '@/pages/ApiDocsPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 
@@ -30,6 +31,7 @@ export const protectedRoutes: RouteObject[] = [
       { path: '/users', element: <RoleRoute roles={['admin', 'manager']}><UsersPage /></RoleRoute> },
       { path: '/roles', element: <RoleRoute roles={['admin', 'manager']}><RolesPage /></RoleRoute> },
       { path: '/resources', element: <PrivateRoute><ResourcesPage /></PrivateRoute> },
+      { path: '/cv', element: <PrivateRoute><CVPage /></PrivateRoute> },
       { path: '/backup', element: <OwnerRoute><BackupPage /></OwnerRoute> },
       { path: '/api-docs', element: <OwnerRoute><ApiDocsPage /></OwnerRoute> },
     ],
