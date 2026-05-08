@@ -13,9 +13,12 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
     <div onClick={onClose} style={{
       position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+      padding: '2rem',
     }}>
       <div onClick={e => e.stopPropagation()} style={{
-        background: '#fff', borderRadius: '8px', padding: '1.5rem', minWidth: '400px', maxWidth: '600px', maxHeight: '80vh', overflow: 'auto',
+        background: '#fff', borderRadius: '8px', padding: '1.5rem',
+        width: '100%', minWidth: '400px', maxWidth: '650px',
+        maxHeight: 'calc(100vh - 4rem)', overflow: 'auto',
       }}>
         {title && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>

@@ -18,7 +18,7 @@ export default function LoginPage() {
       await login(data)
       toast.success(t('login.loginSuccess'))
       setRedirecting(true)
-      setTimeout(() => navigate('/dashboard'), 500)
+      setTimeout(() => navigate('/admin/dashboard'), 500)
     },
     validate: (v) => {
       const errs: Record<string, string> = {}
@@ -51,7 +51,7 @@ export default function LoginPage() {
           <Button type="submit" loading={loading} style={{ width: '100%' }}>{t('login.login')}</Button>
         </form>
         <div style={{ marginTop: '1rem', textAlign: 'center', fontSize: '0.875rem' }}>
-          <Link to="/reset-password" style={{ color: '#3b82f6' }}>{t('login.forgotPassword')}</Link>
+          <Link to="/admin/reset-password" style={{ color: '#3b82f6' }}>{t('login.forgotPassword')}</Link>
         </div>
       </Card>
     </div>

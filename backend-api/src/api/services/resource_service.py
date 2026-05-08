@@ -112,10 +112,12 @@ class ResourceService:
     def get_list(
         page=1,
         per_page=20,
+        filters=None,
+        search=None,
+        sorts=None,
         file_type=None,
         collection=None,
         folder=None,
-        search=None,
         uploaded_by=None,
     ):
         pagination = ResourceRepository.find_all(
@@ -124,8 +126,10 @@ class ResourceService:
             file_type=file_type,
             collection=collection,
             folder=folder,
-            search=search,
             uploaded_by=uploaded_by,
+            filters=filters,
+            search=search,
+            sorts=sorts,
         )
         return {
             "resources": [r.to_dict() for r in pagination.items],

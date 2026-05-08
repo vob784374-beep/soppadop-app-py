@@ -23,7 +23,7 @@ export default function RegisterPage() {
     try {
       await authService.register({ email, username, password, role })
       toast.success(t('register.registerSuccess'))
-      navigate('/users')
+      navigate('/admin/users')
     } catch (err: any) {
       const msg = err.response?.data?.error || 'Registration failed'
       setError(msg)

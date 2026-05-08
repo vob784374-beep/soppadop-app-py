@@ -16,31 +16,20 @@ apiClient.interceptors.request.use(
     }
     return config
   },
-  (error) => Promise.reject(error),
+  (error: AxiosError) => Promise.reject(error),
 )
 
 apiClient.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError<{ error?: string; message?: string }>) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean }
+  (error: AxiosError<{ error?: string; message?: string }>) => {
+    const url = error.config?.url || ''
+    const isAuthEndpoint = url.includes('/auth/login') || url.includes('/auth/register')
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true
-      const refreshToken = localStorage.getItem('refresh_token')
-      if (refreshToken) {
-        try {
-          const { data } = await axios.post(`${API_BASE_URL}/auth/refresh`, null, {
-            headers: { Authorization: `Bearer ${refreshToken}` },
-          })
-          localStorage.setItem('access_token', data.access_token)
-          originalRequest.headers.Authorization = `Bearer ${data.access_token}`
-          return apiClient(originalRequest)
-        } catch {
-          localStorage.removeItem('access_token')
-          localStorage.removeItem('refresh_token')
-          window.location.href = '/login'
-        }
-      }
+    // On 401 — force logout, no auto-refresh
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      window.location.href = '/admin/login'
     }
 
     return Promise.reject(error)

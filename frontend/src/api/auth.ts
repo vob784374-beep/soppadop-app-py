@@ -1,5 +1,8 @@
+import axios from 'axios'
 import apiClient from './client'
 import type { AuthResponse, LoginRequest, RegisterRequest, User, PaginatedUsers } from '@/types'
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 export const authApi = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
@@ -69,6 +72,24 @@ export const authApi = {
 
   updateUsernameVerify: async (code: string): Promise<{ message: string; user: User }> => {
     const res = await apiClient.put('/auth/me/username/verify', { verification_code: code })
+    return res.data
+  },
+
+  refreshToken: async (): Promise<{ access_token: string }> => {
+    const refreshToken = localStorage.getItem('refresh_token')
+    const res = await axios.post(`${API_BASE_URL}/auth/refresh`, null, {
+      headers: { Authorization: `Bearer ${refreshToken}` },
+    })
+    return res.data
+  },
+
+  revokeUserTokens: async (userId: number): Promise<{ message: string }> => {
+    const res = await apiClient.post(`/auth/revoke/user/${userId}`)
+    return res.data
+  },
+
+  revokeAllLowerRoleTokens: async (): Promise<{ message: string }> => {
+    const res = await apiClient.post('/auth/revoke/all-lower')
     return res.data
   },
 }

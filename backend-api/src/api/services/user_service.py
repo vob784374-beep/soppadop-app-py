@@ -86,7 +86,7 @@ class UserService:
 
         if not user.is_active:
             daily_logger.warning(
-                f"UserService.login | account inactive | user_id={user.id} | email={email}"
+                f"UserService.login | account inactive | user_id={user.id} | email={user.email}"
             )
             return None, "Account is inactive"
 
@@ -311,6 +311,13 @@ class UserService:
             f"UserService.update_username | success | user_id={user_id} | username={new_username}"
         )
         return user, None
+
+    @staticmethod
+    def get_by_role(role_id):
+        daily_logger.debug(f"UserService.get_by_role | role_id={role_id}")
+        users = UserRepository.get_by_role(role_id)
+        daily_logger.debug(f"UserService.get_by_role | role_id={role_id} | found={len(users)}")
+        return users
 
     @staticmethod
     def email_exists(email, exclude_user_id=None):

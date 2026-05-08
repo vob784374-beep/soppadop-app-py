@@ -16,7 +16,7 @@ export default function ServerErrorPage() {
         }}>
           Reload Page
         </button>
-        <Link to="/dashboard" style={{
+        <Link to="/admin/dashboard" style={{
           padding: '0.75rem 1.5rem', background: '#e5e7eb', color: '#374151',
           borderRadius: '6px', textDecoration: 'none', fontWeight: 500,
         }}>

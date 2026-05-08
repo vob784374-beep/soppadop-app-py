@@ -15,7 +15,6 @@ import os
 
 
 def _init_database(app):
-    log = get_daily_logger()
     daily_logger = get_daily_logger()
 
     inspector = db.inspect(db.engine)
@@ -139,7 +138,10 @@ def create_app(config_name=None):
             role_bp,
             backup_bp,
             resource_bp,
-            cv_bp,
+            users_bp,
+            public_page_bp,
+            admin_page_bp,
+            lifecycle_bp,
         )
 
         app.register_blueprint(auth_bp)
@@ -147,7 +149,21 @@ def create_app(config_name=None):
         app.register_blueprint(role_bp)
         app.register_blueprint(backup_bp)
         app.register_blueprint(resource_bp)
-        app.register_blueprint(cv_bp)
+        app.register_blueprint(users_bp)
+        app.register_blueprint(public_page_bp)
+        app.register_blueprint(admin_page_bp)
+        app.register_blueprint(lifecycle_bp)
+
+        # ─── Register ABAC Endpoints ──────────────────────────────
+        from src.api.controllers.abac_controller import abac_bp
+        app.register_blueprint(abac_bp)
+
+        # Ensure all tables are created before seeding
+        db.create_all()
+
+        # Initialize policy engine and seed default policies
+        from src.api.services.policy_seeder import seed_default_policies
+        seed_default_policies()
 
         _init_database(app)
 

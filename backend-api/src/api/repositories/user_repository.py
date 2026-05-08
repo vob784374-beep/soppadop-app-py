@@ -78,6 +78,13 @@ class UserRepository:
         daily_logger.debug(f"UserRepository.delete | commit done | user_id={user.id}")
 
     @staticmethod
+    def get_by_role(role_id):
+        daily_logger.debug(f"UserRepository.get_by_role | role_id={role_id}")
+        users = User.query.filter_by(role_id=role_id).all()
+        daily_logger.debug(f"UserRepository.get_by_role | role_id={role_id} | found={len(users)}")
+        return users
+
+    @staticmethod
     def email_exists(email):
         daily_logger.debug(f"UserRepository.email_exists | email={email}")
         exists = User.query.filter_by(email=email).first() is not None

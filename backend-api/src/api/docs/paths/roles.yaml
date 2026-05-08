@@ -320,11 +320,11 @@
             schema:
               $ref: "#/components/schemas/ErrorResponseSchema"
 
-/api/roles/{role_id}/permissions/{permission_id}:
-  post:
+/api/roles/{role_id}/users:
+  get:
     tags:
-      - Permissions
-    summary: Add permission to role
+      - Roles
+    summary: Get users with role
     parameters:
       - in: path
         name: role_id
@@ -332,28 +332,34 @@
           type: integer
         required: true
         description: Role ID
-      - in: path
-        name: permission_id
-        schema:
-          type: integer
-        required: true
-        description: Permission ID
     security:
       - BearerAuth: []
     responses:
       "200":
-        description: Permission added
+        description: List of users with this role
         content:
           application/json:
             schema:
               type: object
               properties:
-                message:
-                  type: string
-                role:
-                  $ref: "#/components/schemas/RoleSchema"
+                users:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/UserSchema"
       "401":
         description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "404":
+        description: Role not found
         content:
           application/json:
             schema:

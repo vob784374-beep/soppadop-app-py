@@ -10,9 +10,16 @@ interface AuthContextType {
   register: (data: RegisterRequest) => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<void>
+  hasPermission: (permission: string) => boolean
+  hasAnyPermission: (...permissions: string[]) => boolean
+  hasAttribute: (key: string, value?: string) => boolean
+  canAccess?: (check: {
+    action: string
+    resource: string
+    resourceId?: number
+    context?: Record<string, unknown>
+  }) => Promise<boolean>
 }
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -48,8 +55,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(u)
   }, [])
 
+  const hasPermission = (permission: string) => {
+    if (!user) return false
+    if (user.role.is_super_admin) return true
+    return user.role.permissions.some(p => p.name === permission)
+  }
+
+  const hasAnyPermission = (...permissions: string[]) => {
+    if (!user) return false
+    if (user.role.is_super_admin) return true
+    const userPerms = new Set(user.role.permissions.map(p => p.name))
+    return permissions.some(p => userPerms.has(p))
+  }
+
+  const hasAttribute = (key: string, value?: string) => {
+    if (!user || !user.attributes) return false
+    const attrValue = user.attributes[key]
+    if (attrValue === undefined) return false
+    return value === undefined || attrValue === value
+  }
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, login, register, logout, refreshUser }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      isAuthenticated, 
+      isLoading, 
+      login, 
+      register, 
+      logout, 
+      refreshUser,
+      hasPermission,
+      hasAnyPermission,
+      hasAttribute
+    }}>
       {children}
     </AuthContext.Provider>
   )

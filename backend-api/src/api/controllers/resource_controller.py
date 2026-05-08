@@ -3,6 +3,7 @@ from src.api.services.resource_service import ResourceService
 from src.api.utils.decorators import auth_required
 from src.api.utils.response import success, error
 from src.api.utils.request import get_json_body
+from src.api.utils.request_query import get_query_params
 from src.api.utils.logger import get_daily_logger
 
 log = get_daily_logger()
@@ -51,20 +52,18 @@ def upload_resource():
 @resource_bp.route("", methods=["GET"])
 @auth_required
 def list_resources():
-    page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 20, type=int)
-    file_type = request.args.get("file_type")
-    collection = request.args.get("collection")
-    folder = request.args.get("folder")
-    search = request.args.get("search")
+    params = get_query_params(
+        default_sort=[{"field": "created_at", "direction": "desc"}],
+        searchable_fields=["original_name", "display_name", "description"],
+        filterable_fields=["file_type", "collection", "folder", "uploaded_by"],
+    )
 
     result, err = ResourceService.get_list(
-        page=page,
-        per_page=per_page,
-        file_type=file_type,
-        collection=collection,
-        folder=folder,
-        search=search,
+        page=params["page"],
+        per_page=params["per_page"],
+        filters=params["filters"],
+        search=params["search"],
+        sorts=params["sorts"],
     )
     if err:
         return error(err, 500)

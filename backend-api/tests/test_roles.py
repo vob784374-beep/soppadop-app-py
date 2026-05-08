@@ -74,7 +74,7 @@ class TestRoleCreate:
 @pytest.mark.role
 class TestRoleUpdate:
     def test_update_role_success(self, client, owner_token):
-        resp = client.patch(
+        resp = client.put(
             "/api/roles/2",
             json={
                 "description": "Updated admin description",
@@ -84,7 +84,7 @@ class TestRoleUpdate:
         assert resp.status_code == 200
 
     def test_update_system_role_name_forbidden(self, client, owner_token):
-        resp = client.patch(
+        resp = client.put(
             "/api/roles/1",
             json={
                 "name": "renamed_admin",
@@ -98,7 +98,7 @@ class TestRoleUpdate:
 @pytest.mark.role
 class TestRolePermissions:
     def test_list_permissions(self, client, admin_headers):
-        resp = client.get("/api/roles/permissions", headers=admin_headers)
+        resp = client.get("/api/permissions", headers=admin_headers)
         assert resp.status_code == 200
         data = resp.get_json()
         assert "permissions" in data
@@ -107,7 +107,7 @@ class TestRolePermissions:
         resp = client.post(
             "/api/roles/2/permissions",
             json={
-                "permissions": ["users.view", "resources.view", "resources.upload"],
+                "permission_ids": [1, 7, 9],
             },
             headers={"Authorization": f"Bearer {owner_token}"},
         )

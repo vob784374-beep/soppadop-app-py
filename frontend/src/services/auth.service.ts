@@ -82,6 +82,31 @@ class AuthService {
   async unlockAccount(email: string) {
     return authApi.unlockAccount(email)
   }
+
+  async refreshToken() {
+    const data = await authApi.refreshToken()
+    localStorage.setItem('access_token', data.access_token)
+    return data.access_token
+  }
+
+  async revokeUserTokens(userId: number) {
+    return authApi.revokeUserTokens(userId)
+  }
+
+  async revokeAllLowerRoleTokens() {
+    return authApi.revokeAllLowerRoleTokens()
+  }
+
+  decodeToken(): { iat: number; exp: number; sub: string; role: string } | null {
+    const token = this.getToken()
+    if (!token) return null
+    try {
+      const payload = token.split('.')[1]
+      return JSON.parse(atob(payload))
+    } catch {
+      return null
+    }
+  }
 }
 
 export const authService = new AuthService()

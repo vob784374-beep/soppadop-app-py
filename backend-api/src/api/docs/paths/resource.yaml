@@ -361,3 +361,41 @@
               properties:
                 stats:
                   $ref: "#/components/schemas/ResourceStatsSchema"
+
+/api/resources/account:
+  get:
+    tags:
+      - Resources
+    summary: Cloudinary account info
+    description: Returns Cloudinary account storage and usage information
+    responses:
+      "200":
+        description: Account information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                account:
+                  type: object
+                  properties:
+                    cloud_name:
+                      type: string
+                    plan:
+                      type: string
+                    credits:
+                      type: object
+                    storage:
+                      type: object
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "500":
+        description: Failed to fetch account info
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"

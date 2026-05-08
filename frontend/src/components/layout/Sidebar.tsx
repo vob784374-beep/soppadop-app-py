@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '@/contexts/AuthContext'
+import { Shield } from '@/components/ui/Icons'
 
 const linkStyle = (isActive: boolean): React.CSSProperties => ({
   display: 'block',
@@ -35,14 +36,11 @@ export default function Sidebar() {
         <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600, padding: '0 0.75rem', marginBottom: '0.5rem' }}>
           {t('sidebar.general')}
         </p>
-        <NavLink to="/dashboard" style={({ isActive }) => linkStyle(isActive)}>
+        <NavLink to="/admin/dashboard" style={({ isActive }) => linkStyle(isActive)}>
           {t('sidebar.dashboard')}
         </NavLink>
-        <NavLink to="/profile" style={({ isActive }) => linkStyle(isActive)}>
+        <NavLink to="/admin/profile" style={({ isActive }) => linkStyle(isActive)}>
           {t('sidebar.profile')}
-        </NavLink>
-        <NavLink to="/cv" style={({ isActive }) => linkStyle(isActive)}>
-          {t('sidebar.cv')}
         </NavLink>
       </div>
 
@@ -51,14 +49,30 @@ export default function Sidebar() {
           <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600, padding: '0 0.75rem', marginBottom: '0.5rem' }}>
             {t('sidebar.management')}
           </p>
-          <NavLink to="/users" style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/users" style={({ isActive }) => linkStyle(isActive)}>
             {t('sidebar.users')}
           </NavLink>
-          <NavLink to="/roles" style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/roles" style={({ isActive }) => linkStyle(isActive)}>
             {t('sidebar.roles')}
           </NavLink>
-          <NavLink to="/resources" style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/resources" style={({ isActive }) => linkStyle(isActive)}>
             {t('sidebar.resources')}
+          </NavLink>
+          <NavLink to="/admin/page-admin" style={({ isActive }) => linkStyle(isActive)}>
+            {t('sidebar.pageAdmin')}
+          </NavLink>
+          <NavLink to="/admin/abac" style={({ isActive }) => ({
+            ...linkStyle(isActive),
+            color: isActive ? '#7c3aed' : '#7c3aed',
+            background: isActive ? '#f5f3ff' : 'transparent',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontWeight: isActive ? 700 : 500,
+          })}
+          >
+            <Shield size={14} />
+            ABAC Policy
           </NavLink>
         </div>
       )}
@@ -68,13 +82,13 @@ export default function Sidebar() {
           <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: '#9ca3af', fontWeight: 600, padding: '0 0.75rem', marginBottom: '0.5rem' }}>
             {t('sidebar.system')}
           </p>
-          <NavLink to="/register" style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/register" style={({ isActive }) => linkStyle(isActive)}>
             {t('sidebar.registerUser')}
           </NavLink>
-          <NavLink to="/backup" style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/backup" style={({ isActive }) => linkStyle(isActive)}>
             {t('sidebar.backup')}
           </NavLink>
-          <NavLink to="/api-docs" style={({ isActive }) => linkStyle(isActive)}>
+          <NavLink to="/admin/api-docs" style={({ isActive }) => linkStyle(isActive)}>
             {t('sidebar.apiDocs')}
           </NavLink>
         </div>

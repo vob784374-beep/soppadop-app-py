@@ -10,6 +10,8 @@ class Msg:
         )
         ACCOUNT_UNLOCKED = "Account {email} unlocked successfully"
         TOKEN_REFRESHED = "Token refreshed"
+        TOKEN_REVOKED_USER = "Tokens revoked for user {user_id}"
+        TOKEN_REVOKED_ALL_LOWER = "Tokens revoked for {count} users with lower roles"
 
     class User:
         NOT_FOUND = "User not found"
@@ -75,3 +77,10 @@ class Msg:
         FILE_TYPE_NOT_ALLOWED = "File type not allowed"
         FILE_TOO_LARGE = "File size exceeds the maximum allowed"
         NO_FILE = "No file provided"
+
+    class PageSection:
+        NOT_FOUND = "Section not found"
+        CREATED = "Section created"
+        UPDATED = "Section updated"
+        DELETED = "Section deleted"
+        CONTENT_NOT_FOUND = "Content not found"

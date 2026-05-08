@@ -13,6 +13,7 @@ def app():
     os.environ["SECRET_KEY"] = "test-secret-key"
     os.environ["JWT_SECRET_KEY"] = "test-jwt-secret"
     os.environ["CORS_ORIGINS"] = "*"
+    os.environ["BACKUP_DIR"] = ""
 
     app = create_app("testing")
     app.config["TESTING"] = True
@@ -97,12 +98,15 @@ def _seed_test_data():
         if p.resource == "resources" and p.action in ("view", "upload"):
             client_role.permissions.append(p)
 
-    from werkzeug.security import generate_password_hash
+    import bcrypt
+
+    def hash_password(password):
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
     owner = User(
         email="owner@test.com",
         username="owner",
-        password_hash=generate_password_hash("Test@123"),
+        password_hash=hash_password("Test@123"),
         role_id=owner_role.id,
         is_active=True,
         is_owner=True,
@@ -110,7 +114,7 @@ def _seed_test_data():
     admin = User(
         email="admin@test.com",
         username="admin",
-        password_hash=generate_password_hash("Test@123"),
+        password_hash=hash_password("Test@123"),
         role_id=admin_role.id,
         is_active=True,
         is_owner=False,
@@ -118,7 +122,7 @@ def _seed_test_data():
     manager = User(
         email="manager@test.com",
         username="manager",
-        password_hash=generate_password_hash("Test@123"),
+        password_hash=hash_password("Test@123"),
         role_id=manager_role.id,
         is_active=True,
         is_owner=False,
@@ -126,7 +130,7 @@ def _seed_test_data():
     client_user = User(
         email="client@test.com",
         username="client",
-        password_hash=generate_password_hash("Test@123"),
+        password_hash=hash_password("Test@123"),
         role_id=client_role.id,
         is_active=True,
         is_owner=False,
@@ -134,7 +138,7 @@ def _seed_test_data():
     inactive = User(
         email="inactive@test.com",
         username="inactive",
-        password_hash=generate_password_hash("Test@123"),
+        password_hash=hash_password("Test@123"),
         role_id=client_role.id,
         is_active=False,
         is_owner=False,

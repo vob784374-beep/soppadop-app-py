@@ -1,3 +1,4 @@
+import time
 from flask import jsonify, g
 from flask_jwt_extended import (
     JWTManager,
@@ -7,17 +8,27 @@ from flask_jwt_extended import (
     get_jwt_identity,
     verify_jwt_in_request,
 )
-from src.api.models import db, User
+from src.api.models import db, User, Role
 from src.api.utils.constants import Msg
 from src.api.utils.logger import get_daily_logger
 
 daily_logger = get_daily_logger()
+
+# Role hierarchy: higher number = higher authority
+ROLE_HIERARCHY = {
+    "client": 1,
+    "manager": 2,
+    "admin": 3,
+    "super_admin": 4,
+}
 
 
 class JWTService:
     _instance = None
     _jwt_manager = None
     _blocklist = set()
+    # user_id -> timestamp: all tokens issued before this timestamp are revoked
+    _revoked_users = {}
 
     @classmethod
     def init(cls, app):
@@ -30,7 +41,14 @@ class JWTService:
     def _register_callbacks(cls):
         @cls._jwt_manager.token_in_blocklist_loader
         def check_if_token_revoked(jwt_header, jwt_payload):
-            return jwt_payload["jti"] in cls._blocklist
+            if jwt_payload["jti"] in cls._blocklist:
+                return True
+            # Check user-level revocation
+            user_id = jwt_payload.get("sub")
+            revoked_at = cls._revoked_users.get(int(user_id)) if user_id else None
+            if revoked_at and jwt_payload.get("iat", 0) < revoked_at:
+                return True
+            return False
 
         @cls._jwt_manager.expired_token_loader
         def expired_token_callback(jwt_header, jwt_payload):
@@ -97,6 +115,27 @@ class JWTService:
         jti = claims["jti"]
         cls._blocklist.add(jti)
         daily_logger.debug(f"JWTService.revoke_token | jti={jti}")
+
+    @classmethod
+    def revoke_user_tokens(cls, user_id):
+        cls._revoked_users[int(user_id)] = int(time.time())
+        daily_logger.info(f"JWTService.revoke_user_tokens | user_id={user_id}")
+
+    @classmethod
+    def revoke_lower_role_tokens(cls, current_user_id, current_role_name):
+        current_level = ROLE_HIERARCHY.get(current_role_name, 0)
+        revoked_count = 0
+        users = User.query.filter(User.id != current_user_id).all()
+        for user in users:
+            user_role_name = user.role.name if user.role else ""
+            user_level = ROLE_HIERARCHY.get(user_role_name, 0)
+            if user_level < current_level:
+                cls._revoked_users[user.id] = int(time.time())
+                revoked_count += 1
+        daily_logger.info(
+            f"JWTService.revoke_lower_role_tokens | revoked_count={revoked_count}"
+        )
+        return revoked_count
 
     # --- Identity Extraction ---
 

@@ -618,3 +618,81 @@
           application/json:
             schema:
               $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/revoke/user/{user_id}:
+  post:
+    tags:
+      - Auth
+    summary: Revoke user tokens
+    description: Revoke all JWT tokens for a specific user (admin only, cannot revoke own tokens)
+    parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+        description: User ID whose tokens to revoke
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Tokens revoked
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MessageResponseSchema"
+      "400":
+        description: Cannot revoke own tokens
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+
+/api/auth/revoke/all-lower:
+  post:
+    tags:
+      - Auth
+    summary: Revoke all lower-role tokens
+    description: Revoke all JWT tokens for users with lower roles than the current user (owner only)
+    security:
+      - BearerAuth: []
+    responses:
+      "200":
+        description: Tokens revoked
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                data:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                      description: Number of tokens revoked
+      "401":
+        description: Unauthorized
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"
+      "403":
+        description: Forbidden (not owner)
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErrorResponseSchema"

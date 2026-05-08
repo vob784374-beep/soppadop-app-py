@@ -35,7 +35,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 }}>
                   Try Again
                 </button>
-                <a href="/dashboard" style={{
+                <a href="/admin/dashboard" style={{
                   padding: '0.5rem 1rem', background: '#e5e7eb', color: '#374151',
                   borderRadius: '4px', textDecoration: 'none',
                 }}>

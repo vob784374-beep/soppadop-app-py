@@ -121,6 +121,48 @@ DEFAULT_PERMISSIONS = [
         "action": "stats",
         "description": "View resource statistics",
     },
+    {
+        "name": "sections.view",
+        "resource": "sections",
+        "action": "view",
+        "description": "View page sections",
+    },
+    {
+        "name": "sections.create",
+        "resource": "sections",
+        "action": "create",
+        "description": "Create new page sections",
+    },
+    {
+        "name": "sections.update",
+        "resource": "sections",
+        "action": "update",
+        "description": "Update page sections",
+    },
+    {
+        "name": "sections.delete",
+        "resource": "sections",
+        "action": "delete",
+        "description": "Delete page sections",
+    },
+    {
+        "name": "sections.list",
+        "resource": "sections",
+        "action": "list",
+        "description": "List all page sections",
+    },
+    {
+        "name": "sections.publish",
+        "resource": "sections",
+        "action": "publish",
+        "description": "Publish page sections",
+    },
+    {
+        "name": "sections.unpublish",
+        "resource": "sections",
+        "action": "unpublish",
+        "description": "Unpublish page sections",
+    },
 ]
 
 DEFAULT_ROLES = [
@@ -155,6 +197,13 @@ DEFAULT_ROLES = [
             "resources.delete",
             "resources.download",
             "resources.stats",
+            "sections.view",
+            "sections.create",
+            "sections.update",
+            "sections.delete",
+            "sections.list",
+            "sections.publish",
+            "sections.unpublish",
         ],
     },
     {
@@ -174,6 +223,12 @@ DEFAULT_ROLES = [
             "resources.upload",
             "resources.download",
             "resources.stats",
+            "sections.view",
+            "sections.create",
+            "sections.update",
+            "sections.list",
+            "sections.publish",
+            "sections.unpublish",
         ],
     },
     {
@@ -187,6 +242,8 @@ DEFAULT_ROLES = [
             "resources.view",
             "resources.upload",
             "resources.download",
+            "sections.view",
+            "sections.list",
         ],
     },
 ]
@@ -321,6 +378,15 @@ def run_all_seeds():
     try:
         seed_roles_permissions()
         seed_super_admin()
+
+        from src.api.seeds.layout_seed import seed_layouts
+
+        seed_layouts()
+
+        from src.api.seeds.section_seed import seed_sample_sections
+
+        seed_sample_sections()
+
         daily_logger.info("run_all_seeds | DONE")
     except Exception as e:
         daily_logger.error(

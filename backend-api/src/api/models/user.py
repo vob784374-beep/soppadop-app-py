@@ -19,6 +19,7 @@ class User(db.Model):
     )
 
     role = db.relationship("Role", lazy="joined")
+    attributes = db.relationship("UserAttribute", backref="user", lazy="selectin", cascade="all, delete-orphan")
 
     def set_password(self, password):
         self.password_hash = bcrypt.hashpw(
@@ -41,8 +42,22 @@ class User(db.Model):
         role_perms = {p.name for p in self.role.permissions}
         return bool(role_perms.intersection(permission_names))
 
-    def to_dict(self):
-        return {
+    def get_attribute(self, key: str):
+        """Get a user attribute value."""
+        for attr in self.attributes:
+            if attr.attr_key == key:
+                return attr.attr_value
+        return None
+
+    def has_attribute(self, key: str, value=None):
+        """Check if user has attribute (optionally matching value)."""
+        attr_value = self.get_attribute(key)
+        if attr_value is None:
+            return False
+        return value is None or attr_value == value
+
+    def to_dict(self, include_attributes=False):
+        data = {
             "id": self.id,
             "email": self.email,
             "username": self.username,
@@ -52,3 +67,8 @@ class User(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+        if include_attributes:
+            data["attributes"] = {
+                attr.attr_key: attr.attr_value for attr in self.attributes
+            }
+        return data

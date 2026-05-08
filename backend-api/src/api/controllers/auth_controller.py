@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask_jwt_extended import jwt_required
 from src.api.services.user_service import UserService
 from src.api.services.jwt_service import JWTService
+from src.api.services.verification_service import VerificationService
 from src.api.services.login_attempt_service import LoginAttemptService
 from src.api.schemas.user_schema import RegisterSchema, LoginSchema, UserUpdateSchema
 from src.api.utils.decorators import owner_required, permission_required
@@ -142,6 +143,30 @@ def get_me():
     return success({"user": user.to_dict()})
 
 
+@auth_bp.route("/me/username", methods=["PATCH"])
+@jwt_required()
+def update_own_username():
+    identity = JWTService.get_current_identity()
+
+    data, err = get_json_body()
+    if err:
+        return error(err)
+
+    if "password" not in data or "verification_code" not in data:
+        return error(Msg.Request.FIELD_PASSWORD_REQUIRED.format(field="password and verification_code"))
+
+    verified, err, _ = VerificationService.verify_code(UserRepository.get_by_id(identity["id"]).email, "username_update", data["verification_code"])
+    if err or not verified:
+        return error(err or Msg.Verification.CODE_INVALID)
+
+    user, err = UserService.update_username(identity["id"], data["username"], data["password"])
+    if err:
+        return error(err)
+
+    log.info(f"Update username SUCCESS | uid={identity['id']}")
+    return success({"user": user.to_dict()})
+
+
 @auth_bp.route("/logout", methods=["POST"])
 @jwt_required()
 def logout():
@@ -149,54 +174,3 @@ def logout():
     JWTService.revoke_token()
     log.info(f"Logout SUCCESS | user_id={identity['id']}")
     return success(message=Msg.Auth.LOGOUT_SUCCESS)
-
-
-# ============================================================
-# USERS CRUD
-# ============================================================
-
-
-@auth_bp.route("/users", methods=["GET"])
-@permission_required("users.list")
-def get_users():
-    page, per_page = get_pagination()
-    p = UserService.get_all(page, per_page)
-    return success(paginate(p, "users"))
-
-
-@auth_bp.route("/users/<int:user_id>", methods=["PUT"])
-@jwt_required()
-def update_user(user_id):
-    identity = JWTService.get_current_identity()
-    if identity["role"] != "admin" and identity["id"] != user_id:
-        return error(Msg.Permission.FORBIDDEN, 403)
-
-    data, err = get_json_body()
-    if err:
-        return error(err)
-
-    v = _validate(UserUpdateSchema, data)
-    if v:
-        return error(v)
-
-    user, err = UserService.update_user(user_id, **data)
-    if err:
-        return error(err)
-
-    log.info(f"Update user SUCCESS | user_id={user_id}")
-    return success({"user": user.to_dict()}, Msg.User.USER_UPDATED)
-
-
-@auth_bp.route("/users/<int:user_id>", methods=["DELETE"])
-@jwt_required()
-def delete_user(user_id):
-    identity = JWTService.get_current_identity()
-    if identity["role"] != "admin":
-        return error(Msg.Permission.ADMIN_REQUIRED, 403)
-
-    ok, err = UserService.delete_user(user_id)
-    if not ok:
-        return error(err, 404)
-
-    log.info(f"Delete user SUCCESS | user_id={user_id}")
-    return success(message=Msg.User.USER_DELETED)

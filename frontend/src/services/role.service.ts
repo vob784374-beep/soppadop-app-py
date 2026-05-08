@@ -7,6 +7,27 @@ class RoleService {
     return roles
   }
 
+  async listWithUserCount(): Promise<Role[]> {
+    const { roles } = await rolesApi.list()
+    // For each role, fetch user count
+    const rolesWithCount = await Promise.all(
+      roles.map(async (r) => {
+        try {
+          const users = await this.getUsersByRole(r.id)
+          return { ...r, user_count: users.length, users }
+        } catch {
+          return { ...r, user_count: 0, users: [] }
+        }
+      })
+    )
+    return rolesWithCount
+  }
+
+  async getUsersByRole(roleId: number) {
+    const { users } = await rolesApi.getUsers(roleId)
+    return users
+  }
+
   async get(id: number): Promise<Role> {
     const { role } = await rolesApi.get(id)
     return role

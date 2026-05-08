@@ -12,7 +12,7 @@ export default function NotFoundPage() {
       <div style={{ fontSize: '6rem', fontWeight: 700, color: '#e5e7eb' }}>404</div>
       <h2 style={{ color: '#374151' }}>{t('notFound.title')}</h2>
       <p style={{ color: '#6b7280' }}>{t('notFound.description')}</p>
-      <Link to="/dashboard" style={{
+      <Link to="/admin/dashboard" style={{
         padding: '0.75rem 1.5rem', background: '#3b82f6', color: '#fff',
         borderRadius: '6px', textDecoration: 'none', fontWeight: 500,
       }}>

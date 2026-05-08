@@ -1,5 +1,6 @@
 from src.api.models import db, Resource
 from sqlalchemy import func
+from src.api.utils.query_builder import QueryBuilder
 from src.api.utils.logger import get_daily_logger
 
 log = get_daily_logger()
@@ -28,34 +29,44 @@ class ResourceRepository:
     def find_all(
         page=1,
         per_page=20,
+        filters=None,
+        search=None,
+        sorts=None,
         file_type=None,
         collection=None,
         folder=None,
-        search=None,
         uploaded_by=None,
     ):
-        query = Resource.query
+        qb = QueryBuilder(Resource)
 
+        # Legacy params support
         if file_type:
-            query = query.filter(Resource.file_type == file_type)
+            qb.filter("file_type", file_type)
         if collection:
-            query = query.filter(Resource.collection == collection)
+            qb.filter("collection", collection)
         if folder:
-            query = query.filter(Resource.folder == folder)
+            qb.filter("folder", folder)
         if uploaded_by:
-            query = query.filter(Resource.uploaded_by == uploaded_by)
-        if search:
-            search_term = f"%{search}%"
-            query = query.filter(
-                db.or_(
-                    Resource.original_name.ilike(search_term),
-                    Resource.display_name.ilike(search_term),
-                    Resource.description.ilike(search_term),
-                )
+            qb.filter("uploaded_by", uploaded_by)
+
+        # New flexible filters
+        if filters:
+            qb.filter_many(filters)
+
+        # Search
+        if search and search.get("keyword"):
+            qb.search(
+                search.get("fields", ["original_name", "display_name", "description"]),
+                search["keyword"],
             )
 
-        query = query.order_by(Resource.created_at.desc())
-        return query.paginate(page=page, per_page=per_page, error_out=False)
+        # Sorts
+        if sorts:
+            qb.sort_by(sorts)
+        else:
+            qb.sort("created_at", "desc")
+
+        return qb.paginate(page, per_page).execute()
 
     @staticmethod
     def delete(resource):

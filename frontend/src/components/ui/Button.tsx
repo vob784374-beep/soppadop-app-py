@@ -1,27 +1,29 @@
 import React from 'react'
+import { theme as T } from '@/styles/theme'
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'danger' | 'success' | 'warning' | 'ghost'
+  variant?: 'primary' | 'danger' | 'success' | 'warning' | 'ghost' | 'outline'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
 }
 
-const colors: Record<string, { bg: string; hover: string }> = {
-  primary: { bg: '#3b82f6', hover: '#2563eb' },
-  danger: { bg: '#ef4444', hover: '#dc2626' },
-  success: { bg: '#22c55e', hover: '#16a34a' },
-  warning: { bg: '#f59e0b', hover: '#d97706' },
-  ghost: { bg: 'transparent', hover: '#f3f4f6' },
+const variants: Record<string, { bg: string; hover: string; text: string; border: string }> = {
+  primary: { bg: T.primary,      hover: T.primaryHover,  text: '#fff',          border: T.primary },
+  danger:  { bg: T.rose,         hover: T.roseHover,     text: '#fff',          border: T.rose },
+  success: { bg: T.emerald,      hover: T.emeraldHover,  text: '#fff',          border: T.emerald },
+  warning: { bg: T.amber,        hover: T.amberHover,    text: '#fff',          border: T.amber },
+  ghost:   { bg: 'transparent',  hover: T.bgSubtle,      text: T.inkSoft,       border: T.border },
+  outline: { bg: 'transparent',  hover: T.primarySoft,   text: T.primary,       border: T.primaryRing },
 }
 
 const sizes: Record<string, React.CSSProperties> = {
-  sm: { padding: '0.25rem 0.75rem', fontSize: '0.8rem' },
-  md: { padding: '0.5rem 1rem', fontSize: '0.875rem' },
-  lg: { padding: '0.75rem 1.5rem', fontSize: '1rem' },
+  sm: { padding: '0.25rem 0.65rem', fontSize: '0.72rem' },
+  md: { padding: '0.4rem 0.9rem',   fontSize: '0.8rem' },
+  lg: { padding: '0.6rem 1.3rem',   fontSize: '0.88rem' },
 }
 
 export default function Button({ variant = 'primary', size = 'md', loading, children, style, disabled, ...props }: ButtonProps) {
-  const c = colors[variant]
+  const v = variants[variant]
   const s = sizes[size]
   return (
     <button
@@ -29,13 +31,18 @@ export default function Button({ variant = 'primary', size = 'md', loading, chil
       disabled={disabled || loading}
       style={{
         ...s,
-        background: c.bg,
-        color: variant === 'ghost' ? '#374151' : '#fff',
-        border: variant === 'ghost' ? '1px solid #d1d5db' : 'none',
-        borderRadius: '4px',
+        background: v.bg,
+        color: v.text,
+        border: `1px solid ${v.border}`,
+        borderRadius: '7px',
         cursor: disabled || loading ? 'not-allowed' : 'pointer',
-        opacity: disabled || loading ? 0.6 : 1,
-        fontWeight: 500,
+        opacity: disabled || loading ? 0.5 : 1,
+        fontWeight: 600,
+        fontFamily: "'Inter', sans-serif",
+        transition: 'all 0.15s ease',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '0.25rem',
         ...style,
       }}
     >

@@ -453,3 +453,295 @@ ResourceStatsSchema:
       type: object
       additionalProperties:
         type: integer
+
+PageSectionSchema:
+  type: object
+  properties:
+    id:
+      type: integer
+      readOnly: true
+      description: Section ID
+    title:
+      type: string
+      description: Section title
+    section_type:
+      type: string
+      enum: [general, blog, gallery, travel, review, video, featured]
+      description: Section type
+    description:
+      type: string
+      description: Section description
+    cover_image:
+      type: string
+      description: Cover image URL
+    sort_order:
+      type: integer
+      description: Display order
+    is_visible:
+      type: boolean
+      description: Visibility on public page
+    status:
+      type: string
+      enum: [draft, published]
+      description: Publication status
+    layout:
+      type: string
+      enum: [grid, list, hero, carousel]
+      description: Display layout
+    max_items:
+      type: integer
+      description: Maximum items to display
+    background_color:
+      type: string
+      description: Background color (hex)
+    template_group:
+      type: string
+      description: Template group identifier
+    group_order:
+      type: integer
+      description: Order within template group
+    created_by:
+      type: integer
+      description: Creator user ID
+    created_by_user:
+      type: string
+      description: Creator username
+    content_count:
+      type: integer
+      description: Number of contents in section
+    contents:
+      type: array
+      items:
+        $ref: "#/components/schemas/SectionContentSchema"
+      description: Section contents (admin view)
+    created_at:
+      type: string
+      format: date-time
+      readOnly: true
+    updated_at:
+      type: string
+      format: date-time
+      readOnly: true
+  required:
+    - title
+
+PageSectionCreateSchema:
+  type: object
+  properties:
+    title:
+      type: string
+      description: Section title
+      example: My Blog Section
+    section_type:
+      type: string
+      enum: [general, blog, gallery, travel, review, video, featured]
+      default: general
+    description:
+      type: string
+    cover_image:
+      type: string
+    sort_order:
+      type: integer
+    is_visible:
+      type: boolean
+      default: true
+    status:
+      type: string
+      enum: [draft, published]
+      default: draft
+    layout:
+      type: string
+      enum: [grid, list, hero, carousel]
+      default: grid
+    max_items:
+      type: integer
+      default: 6
+    background_color:
+      type: string
+  required:
+    - title
+
+PageSectionUpdateSchema:
+  type: object
+  properties:
+    title:
+      type: string
+    section_type:
+      type: string
+      enum: [general, blog, gallery, travel, review, video, featured]
+    description:
+      type: string
+    cover_image:
+      type: string
+    sort_order:
+      type: integer
+    is_visible:
+      type: boolean
+    status:
+      type: string
+      enum: [draft, published]
+    layout:
+      type: string
+      enum: [grid, list, hero, carousel]
+    max_items:
+      type: integer
+    background_color:
+      type: string
+
+SectionContentSchema:
+  type: object
+  properties:
+    id:
+      type: integer
+      readOnly: true
+      description: Content ID
+    section_id:
+      type: integer
+      description: Parent section ID
+    title:
+      type: string
+      description: Content title
+    subtitle:
+      type: string
+      description: Content subtitle
+    body:
+      type: string
+      description: Content body text
+    image_url:
+      type: string
+      description: Image URL
+    video_url:
+      type: string
+      description: Video URL
+    link_url:
+      type: string
+      description: External link URL
+    tags:
+      type: string
+      description: Comma-separated tags
+    author:
+      type: string
+      description: Author name
+    sort_order:
+      type: integer
+      description: Display order
+    is_visible:
+      type: boolean
+      description: Visibility
+    content_date:
+      type: string
+      format: date-time
+      description: Associated date
+    created_at:
+      type: string
+      format: date-time
+      readOnly: true
+    updated_at:
+      type: string
+      format: date-time
+      readOnly: true
+
+SectionContentCreateSchema:
+  type: object
+  properties:
+    section_id:
+      type: integer
+      description: Parent section ID
+    title:
+      type: string
+    subtitle:
+      type: string
+    body:
+      type: string
+    image_url:
+      type: string
+    video_url:
+      type: string
+    link_url:
+      type: string
+    tags:
+      type: string
+    author:
+      type: string
+    sort_order:
+      type: integer
+    is_visible:
+      type: boolean
+      default: true
+    content_date:
+      type: string
+      format: date-time
+  required:
+    - section_id
+
+SectionContentUpdateSchema:
+  type: object
+  properties:
+    title:
+      type: string
+    subtitle:
+      type: string
+    body:
+      type: string
+    image_url:
+      type: string
+    video_url:
+      type: string
+    link_url:
+      type: string
+    tags:
+      type: string
+    author:
+      type: string
+    sort_order:
+      type: integer
+    is_visible:
+      type: boolean
+    content_date:
+      type: string
+      format: date-time
+
+TemplateSchema:
+  type: object
+  properties:
+    id:
+      type: string
+      description: Template identifier
+    name:
+      type: string
+      description: Template name
+    description:
+      type: string
+      description: Template description
+    section_type:
+      type: string
+      description: Section type for section templates
+    layout:
+      type: string
+      description: Layout type
+    contents:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          subtitle:
+            type: string
+          image_url:
+            type: string
+      description: Preview contents (section templates)
+    sections:
+      type: array
+      items:
+        type: object
+        properties:
+          title:
+            type: string
+          layout:
+            type: string
+          contents:
+            type: array
+            items:
+              type: object
+      description: Preview sections (page templates)

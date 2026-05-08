@@ -7,7 +7,7 @@ export default function MainLayout() {
   const location = useLocation()
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="page-enter" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
       <div style={{ display: 'flex', marginTop: '60px', minHeight: 'calc(100vh - 60px)' }}>
         <Sidebar />

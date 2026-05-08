@@ -87,12 +87,12 @@ export default function ResetPasswordPage() {
       {step === 3 && (
         <div style={{ textAlign: 'center' }}>
           <p style={styles.success}>{message}</p>
-          <Link to="/login" style={{ color: '#3b82f6' }}>{t('resetPassword.backToLogin')}</Link>
+          <Link to="/admin/login" style={{ color: '#3b82f6' }}>{t('resetPassword.backToLogin')}</Link>
         </div>
       )}
 
       <p style={styles.link}>
-        <Link to="/login">{t('resetPassword.backToLogin')}</Link>
+        <Link to="/admin/login">{t('resetPassword.backToLogin')}</Link>
       </p>
     </div>
   )

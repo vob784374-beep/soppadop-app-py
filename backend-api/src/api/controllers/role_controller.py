@@ -1,5 +1,5 @@
 import traceback
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, g
 from src.api.services.role_service import RoleService, PermissionService
 from src.api.utils.decorators import permission_required
 from src.api.utils.logger import get_daily_logger
@@ -72,6 +72,14 @@ def create_role():
     name = data["name"]
     description = data.get("description")
     daily_logger.debug(f"Parsed fields | name={name} | description={description}")
+
+    # Only owner (super_admin role) can create new roles
+    user = g.get("current_user")
+    if user and not user.role.is_super_admin:
+        daily_logger.warning(
+            f"Create role FAILED | user_id={user.id} | role={user.role.name} | reason=insufficient privileges | status=403"
+        )
+        return jsonify({"error": "Only owner can create roles"}), 403
 
     try:
         daily_logger.debug(f"Calling RoleService.create | name={name}")
@@ -182,7 +190,7 @@ def get_permissions():
         return jsonify({"error": "Internal server error"}), 500
 
 
-@role_bp.route("/roles/<int:role_id>/permissions", methods=["PUT"])
+@role_bp.route("/roles/<int:role_id>/permissions", methods=["POST"])
 @permission_required("permissions.assign")
 def set_role_permissions(role_id):
     """Set all permissions for a role (replace existing)."""
@@ -307,3 +315,29 @@ def remove_role_permission(role_id, permission_id):
         )
         daily_logger.error(f"Traceback:\n{traceback.format_exc()}")
         return jsonify({"error": "Internal server error"}), 500
+
+
+@role_bp.route('/roles/<int:role_id>/users', methods=['GET'])
+@permission_required('roles.view')
+def get_role_users(role_id):
+    '''Get all users with this role.'''
+    daily_logger.debug(f'=== GET ROLE USERS START | role_id={role_id} ===')
+    try:
+        daily_logger.debug(f'Calling RoleService.get_by_id | role_id={role_id}')
+        role = RoleService.get_by_id(role_id)
+        if not role:
+            daily_logger.warning(f'Get role users FAILED | role_id={role_id} | reason=not found | status=404')
+            return jsonify({'error': 'Role not found'}), 404
+        
+        from src.api.services.user_service import UserService
+        daily_logger.debug(f'Calling UserService.get_by_role | role_id={role_id}')
+        users = UserService.get_by_role(role_id)
+        
+        daily_logger.info(f'Get role users SUCCESS | role_id={role_id} | user_count={len(users)} | status=200')
+        daily_logger.debug('=== GET ROLE USERS END ===')
+        return jsonify({'users': [u.to_dict() for u in users]}), 200
+    except Exception as e:
+        daily_logger.error(f'Get role users EXCEPTION | role_id={role_id} | exception={type(e).__name__}: {e}')
+        daily_logger.error(f'Traceback:\n{traceback.format_exc()}')
+        return jsonify({'error': 'Internal server error'}), 500
+

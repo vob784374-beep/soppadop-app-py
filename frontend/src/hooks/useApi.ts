@@ -37,24 +37,38 @@ export function useApi<T>(fetcher: () => Promise<T>, deps: any[] = []) {
   return { ...state, refetch }
 }
 
-export function useMutation<T, P = void>(mutator: (params: P) => Promise<T>) {
+export function useMutation<T, P = void>(mutator: (params: P) => Promise<T>, options?: { 
+  onSuccess?: (data: T) => void 
+  onMutate?: (variables: P) => Promise<any> | any
+  onError?: (error: any, variables: P, context: any) => void
+}) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const mutate = useCallback(async (params: P): Promise<T | null> => {
+    let context: any = undefined
     setLoading(true)
     setError(null)
     try {
+      if (options?.onMutate) {
+        context = await options.onMutate(params)
+      }
       const result = await mutator(params)
       setLoading(false)
+      options?.onSuccess?.(result)
       return result
     } catch (err) {
       const e = err as AxiosError<{ error: string }>
-      setError(e.response?.data?.error || 'Request failed')
+      const errorObj = e.response?.data?.error || 'Request failed'
+      if (options?.onError) {
+        options.onError(errorObj, params, context)
+      } else {
+        setError(errorObj)
+      }
       setLoading(false)
       return null
     }
-  }, [mutator])
+  }, [mutator, options])
 
   return { mutate, loading, error, setError }
 }
